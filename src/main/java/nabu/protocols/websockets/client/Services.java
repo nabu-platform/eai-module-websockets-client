@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.validation.constraints.NotNull;
 
@@ -29,4 +30,9 @@ public class Services {
 		client.send(content);
 	}
 	
+	@WebResult(name = "connected")
+	public boolean isConnected(@NotNull @WebParam(name = "webSocketClientId") String webSocketClientId) {
+		WebSocketClient client = (WebSocketClient) EAIResourceRepository.getInstance().resolve(webSocketClientId);
+		return client.isConnected();
+	}
 }

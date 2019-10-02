@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import be.nabu.eai.repository.RepositoryThreadFactory;
 import be.nabu.eai.repository.api.Repository;
 import be.nabu.eai.repository.artifacts.jaxb.JAXBArtifact;
+import be.nabu.libs.artifacts.api.StoppableArtifact;
 import be.nabu.libs.authentication.api.Token;
 import be.nabu.libs.authentication.api.principals.BasicPrincipal;
 import be.nabu.libs.events.api.EventHandler;
@@ -48,7 +49,7 @@ import be.nabu.libs.types.binding.api.Window;
 import be.nabu.libs.types.binding.json.JSONBinding;
 import be.nabu.utils.io.IOUtils;
 
-public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> {
+public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> implements StoppableArtifact {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	private NIOHTTPClientImpl client;
@@ -233,7 +234,7 @@ public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> 
 		try {
 			HTTPResponse upgrade = WebSocketUtils.upgrade(
 				getClient(), 
-				SSLContext.getDefault(), 
+				uri.getScheme().equals("https") ? SSLContext.getDefault() : null, 
 				uri.getHost(), 
 				uri.getPort() < 0 ? (uri.getScheme().equals("https") ? 443 : 80) : uri.getPort(), 
 				uri.getPath(), 
@@ -253,6 +254,17 @@ public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> 
 		}
 		catch (Exception e) {
 			throw e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
+		}
+	}
+	
+	public boolean isConnected() {
+		return connected;
+	}
+
+	@Override
+	public void stop() throws IOException {
+		if (connected) {
+			disconnect();
 		}
 	}
 }
