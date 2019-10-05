@@ -136,6 +136,7 @@ public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> 
 						});
 						
 						client.getDispatcher().subscribe(WebSocketRequest.class, new EventHandler<WebSocketRequest, WebSocketMessage>() {
+							@SuppressWarnings("unchecked")
 							@Override
 							public WebSocketMessage handle(WebSocketRequest event) {
 								if (getConfig().getMessageService() == null) {
@@ -175,6 +176,7 @@ public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> 
 										if (content == null) {
 											throw new RuntimeException("Could not unmarshal the incoming data");
 										}
+										
 										content.set("webSocketId", getId());
 										content.set("uri", uri);
 										Future<ServiceResult> run = getRepository().getServiceRunner().run(
@@ -187,12 +189,20 @@ public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> 
 											throw serviceResult.getException();
 										}
 										else if (serviceResult.getOutput() != null) {
-											JSONBinding binding = new JSONBinding(serviceResult.getOutput().getType(), Charset.forName("UTF-8"));
-											binding.setIgnoreRootIfArrayWrapper(true);
-											ByteArrayOutputStream output = new ByteArrayOutputStream();
-											binding.marshal(output, serviceResult.getOutput());
-											byte [] bytes = output.toByteArray();
-											return WebSocketUtils.newMessage(OpCode.TEXT, true, bytes.length, IOUtils.wrap(bytes, true));	
+											Object result = serviceResult.getOutput().get("response");
+											if (result != null) {
+												if (!(result instanceof ComplexContent)) {
+													result = ComplexContentWrapperFactory.getInstance().getWrapper().wrap(result);
+												}
+												if (result != null) {
+													JSONBinding binding = new JSONBinding(((ComplexContent) result).getType(), Charset.forName("UTF-8"));
+													binding.setIgnoreRootIfArrayWrapper(true);
+													ByteArrayOutputStream output = new ByteArrayOutputStream();
+													binding.marshal(output, (ComplexContent) result);
+													byte [] bytes = output.toByteArray();
+													return WebSocketUtils.newMessage(OpCode.TEXT, true, bytes.length, IOUtils.wrap(bytes, true));
+												}
+											}
 										}
 									}
 									catch (Exception e) {
