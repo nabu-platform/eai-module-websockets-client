@@ -92,11 +92,19 @@ public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> 
 			synchronized(this) {
 				if (client == null) {
 					try {
+						Integer ioPoolSize = getConfig().getIoPoolSize();
+						if (ioPoolSize == null || ioPoolSize < 3) {
+							ioPoolSize = 3;
+						}
+						Integer processPoolSize = getConfig().getProcessPoolSize();
+						if (processPoolSize == null || processPoolSize < 1) {
+							processPoolSize = 1;
+						}
 						EventDispatcherImpl dispatcher = new EventDispatcherImpl();
 						client = new NIOHTTPClientImpl(
 								SSLContext.getDefault(), 
-								3, 
-								1, 
+								ioPoolSize, 
+								processPoolSize, 
 								1,
 								dispatcher, 
 								new MemoryMessageDataProvider(), 

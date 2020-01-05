@@ -10,6 +10,7 @@ import be.nabu.libs.services.api.DefinedService;
 @XmlRootElement(name = "websocketClient")
 public class WebSocketClientConfiguration {
 	private DefinedService messageService, connectService, disconnectService;
+	private Integer ioPoolSize, processPoolSize;
 	
 	@XmlJavaTypeAdapter(value = ArtifactXMLAdapter.class)
 	@InterfaceFilter(implement = "be.nabu.eai.module.websockets.client.api.WebSocketClientListener.message")
@@ -36,5 +37,17 @@ public class WebSocketClientConfiguration {
 	}
 	public void setDisconnectService(DefinedService disconnectService) {
 		this.disconnectService = disconnectService;
+	}
+	public Integer getIoPoolSize() {
+		return ioPoolSize;
+	}
+	public void setIoPoolSize(Integer ioPoolSize) {
+		this.ioPoolSize = ioPoolSize;
+	}
+	public Integer getProcessPoolSize() {
+		return processPoolSize;
+	}
+	public void setProcessPoolSize(Integer processPoolSize) {
+		this.processPoolSize = processPoolSize;
 	}
 }
