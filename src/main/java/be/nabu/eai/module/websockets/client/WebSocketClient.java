@@ -102,16 +102,16 @@ public class WebSocketClient extends JAXBArtifact<WebSocketClientConfiguration> 
 						}
 						EventDispatcherImpl dispatcher = new EventDispatcherImpl();
 						client = new NIOHTTPClientImpl(
-								SSLContext.getDefault(), 
-								ioPoolSize, 
-								processPoolSize, 
-								1,
-								dispatcher, 
-								new MemoryMessageDataProvider(), 
-								new CookieManager(new CustomCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER), 
-								new RepositoryThreadFactory(getRepository()), 
-								false
-								);
+							SSLContext.getDefault(), 
+							ioPoolSize, 
+							processPoolSize, 
+							1,
+							dispatcher, 
+							new MemoryMessageDataProvider(), 
+							new CookieManager(new CustomCookieStore(), CookiePolicy.ACCEPT_ORIGINAL_SERVER), 
+							new RepositoryThreadFactory(getRepository()), 
+							false
+						);
 						// unlimited lifetime
 						client.getNIOClient().setMaxLifeTime(0l);
 						WebSocketUtils.allowWebsockets(client, new MemoryMessageDataProvider());
